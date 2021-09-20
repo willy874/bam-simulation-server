@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@core/*": ["./core/*"],
+      "@app/*": ["./app/*"],
+    },
+    "types": [
+      "@types",
+      "jest"
+    ]
+  },
+}
