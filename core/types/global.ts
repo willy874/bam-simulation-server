@@ -1,16 +1,20 @@
 import http from 'http'
-import https from 'https'
+import HttpRequest from '@core/router/request'
+import HttpResponse from '@core/router/response'
+
+export type Data = {
+  [key: string]: string
+}
 
 export declare class Application {
-  public env: NodeJS.ProcessEnv;
-  constructor(env?: NodeJS.ProcessEnv)
+  constructor()
   init(): Promise<http.Server>;
 }
 
 export declare class Router extends RouteMethods {
   public app?: Application;
-  public path: string;
   public routes: BaseRoute[];
+  public middlewares?: MiddlewareHandler|MiddlewareHandler[]
   constructor (app: Application)
   createRequestListener(req: http.IncomingMessage, res: http.ServerResponse): Promise<http.RequestListener>;
 }
@@ -19,6 +23,13 @@ export declare class Route extends RouteMethods {
   public middlewares: MiddlewareHandler[]
   constructor(ops: RouteOptions)
   handler<T>(callback: RouteHandler<T>): T
+}
+
+export declare class RouteMethods {
+  middleware(m: MiddlewareHandler|MiddlewareHandler[]): Route
+  group(url: string|string[]): Route
+  http(options: RouteHttpOptions): void
+  on(method: string|HttpMethods,  url: string, routeEvent: RouteEvent): void
 }
 
 export interface RouteOptions {
@@ -33,6 +44,7 @@ export declare class BaseRoute {
   public controller?: ControllerHandler
   public middlewares: MiddlewareHandler[]
   constructor(ops: RouteOptions)
+  isRouteUrl(req: http.IncomingMessage): boolean
 }
 
 export declare interface BaseRouteOptions {
@@ -49,22 +61,15 @@ export interface RouteHttpOptions {
   url?: string
 }
 
-export declare class RouteMethods {
-  middleware(m: MiddlewareHandler|MiddlewareHandler[]): Route
-  group(url: string|string[]): Route
-  http(options: RouteHttpOptions): void
-  on(method: string|HttpMethods,  url: string, routeEvent: RouteEvent): void
-}
-
 export type RouteEvent = string|ControllerHandler|[...MiddlewareHandler[] ,ControllerHandler]
 
 export type RouteHandler<T> = (route: Route) => T
 
 export type NextHandler = () => void
 
-export type ControllerHandler = (req: http.IncomingMessage, res: http.ServerResponse) => void
+export type ControllerHandler = (req: HttpRequest, res: HttpResponse) => void
 
-export type MiddlewareHandler = (req: http.IncomingMessage, res: http.ServerResponse, next: NextHandler) => void
+export type MiddlewareHandler = (req: HttpRequest, res: HttpResponse, next: NextHandler) => void
 
 export enum HttpMethods {
   GET = 'GET',

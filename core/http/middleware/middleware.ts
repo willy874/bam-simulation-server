@@ -6,13 +6,12 @@ import { isClass, logError, ErrorMessage } from '@core/utils'
 import { defaultMiddleware } from '../default-handler'
 
 const MiddlewareList: BaseMiddleware[] = []
-const middlewarePath = path.resolve(process.cwd(), config.path.application, config.path.middleware)
 
 export default class Middleware {
   static async createMiddleware() {
-    const files = await fs.promises.readdir(middlewarePath)
+    const files = await fs.promises.readdir(config.path.middleware)
     files.forEach(file => {
-      const Action = require(path.resolve(middlewarePath, file)).default
+      const Action = require(path.resolve(config.path.middleware, file)).default
       if (isClass(Action)) {
         MiddlewareList.push(new Action()) 
       } else {

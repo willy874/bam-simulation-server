@@ -13,20 +13,21 @@ import {
   RouteEvent
 } from '@core/types'
 import BaseRoute from './base'
+import routerDistributor from './distributor'
 
 export default class RouterNative implements Router {
-  public app?: Application;
-  public path = path.resolve(process.cwd(), config.path.application, config.path.router)
-  public routes: BaseRoute[] = []
+  app: Application;
+  routes: BaseRoute[] = []
+  middlewares: MiddlewareHandler[] = []
 
   constructor (app: Application) {
     this.app = app
   }
 
   async createRequestListener () {
-    const files = await fs.promises.readdir(this.path)
+    const files = await fs.promises.readdir(config.path.router)
     files.forEach(file => {
-      const action = require(path.resolve(this.path, file)).default
+      const action = require(path.resolve(config.path.router, file)).default
       if (isFunction(action)) {
         action(this) 
       } else {
@@ -34,8 +35,7 @@ export default class RouterNative implements Router {
       }
     })
     return (req: http.IncomingMessage, res: http.ServerResponse) => {
-      res.write(req.url);
-      res.end();
+      routerDistributor.call(this, this.routes, req, res)
     }
   }
 

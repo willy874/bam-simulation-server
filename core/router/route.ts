@@ -1,12 +1,10 @@
 import { isArray, isFunction, isString, setFunctions, setUrlString, logError, ErrorMessage } from '@core/utils'
-import http from 'http'
 import {
   Route,
   RouteOptions,
   RouteHttpOptions,
   RouteHandler,
   RouteEvent,
-  ControllerHandler,
   MiddlewareHandler,
   HttpMethods
 } from '@core/types'
@@ -55,7 +53,10 @@ export default class RouteNative implements Route {
       url: setUrlString(this.url, url),
       middlewares: this.middlewares.slice(),
     })
-    const arrayHandler = (callback: [...MiddlewareHandler[], ControllerHandler]) => {
+    if (isFunction(routeEvent)) {
+      route.controller = routeEvent
+    } else if (isArray(routeEvent)) {
+      const callback = routeEvent
       const middlewares = callback.splice(0, callback.length - 1)
       const controller = (req: any, res: any) => {
         const run = callback.length ? callback[0] : callback[callback.length - 1]
@@ -63,14 +64,7 @@ export default class RouteNative implements Route {
       }
       route.controller = controller
       route.middlewares = setFunctions<MiddlewareHandler>(this.middlewares, middlewares)
-    }
-    if (isFunction(routeEvent)) {
-      route.controller = routeEvent
-    }
-    if (isArray(routeEvent)) {
-      arrayHandler(routeEvent)
-    }
-    if (isString(routeEvent)) {
+    } else if (isString(routeEvent)) {
       const middlewareString = routeEvent.split('.')
       if (middlewareString.every(s => /@/.test(s))) {
         // 取出 Controller
@@ -87,10 +81,6 @@ export default class RouteNative implements Route {
         logError(ErrorMessage.NOT_CONTROLLER, { scope: ['Route', 'on', 'isString'] })
       }
     }
-    if (route.controller) {
-      this.routes.push(route)
-    } else {
-      logError(ErrorMessage.NO_CONTROLLER_DATA, { scope: ['Route', 'on'] })
-    }
+    this.routes.push(route)
   }
 }

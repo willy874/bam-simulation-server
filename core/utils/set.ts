@@ -11,10 +11,7 @@ export function setFunctions<F>(funcs: F[], param?: F|F[]) {
 }
 
 export function setUrlString(url: string, param?: string|string[]) {
-  if (isArray(param)) {
-    url += (/\/$/.test(url) ? param.join('/') : param.join('/'))
-  } else if (isString(param)){
-    url += (/\/$/.test(url) ? param : ('/ '+ param))
-  }
+  const joinUrl = (isArray(param) ? param.join('/') : param)?.replace(/^\//, '') || ''
+  url += (/\/$/.test(url) ? joinUrl : ('/' + joinUrl))
   return url
 }

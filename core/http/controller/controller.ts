@@ -6,13 +6,12 @@ import { isClass, logError, ErrorMessage } from '@core/utils'
 import { defaultController } from '../default-handler'
 
 const ControllerList: BaseController[] = []
-const controllerPath = path.resolve(process.cwd(), config.path.application, config.path.controller)
 
 export default class Controller {
   static async createController() {
-    const files = await fs.promises.readdir(controllerPath)
+    const files = await fs.promises.readdir(config.path.controller)
     files.forEach(file => {
-      const Action = require(path.resolve(controllerPath, file)).default
+      const Action = require(path.resolve(config.path.controller, file)).default
       if (isClass(Action)) {
         ControllerList.push(new Action()) 
       } else {

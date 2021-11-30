@@ -1,7 +1,7 @@
-import { Controller } from '@core/types'
+import { Controller, ControllerHandler } from '@core/types'
 
 export default class BaseController implements Controller {
-  [method: string]: import("@core/types").ControllerHandler;
+  [method: string]: ControllerHandler;
 
   constructor() {
     console.log('BaseController');

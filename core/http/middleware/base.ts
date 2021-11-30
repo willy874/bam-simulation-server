@@ -1,7 +1,7 @@
-import { Middleware } from '@core/types'
+import { Middleware, MiddlewareHandler } from '@core/types'
 
 export default class BaseMiddleware implements Middleware {
-  [method: string]: import("@core/types").MiddlewareHandler;
+  [method: string]: MiddlewareHandler;
 
   constructor() {
     console.log('BaseMiddleware');
